@@ -26,7 +26,7 @@ class CampaignController extends Controller
         return response()->json($campaigns);
     }
 
-    public function store(Request $request)
+        public function store(Request $request)
     {
         try {
             $validatedData = $request->validate([
@@ -42,9 +42,6 @@ class CampaignController extends Controller
                 'target_amount' => 'required|numeric',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date|after:start_date',
-                'active' => 'required|boolean',
-                'approved' => 'required|boolean',
-                'distribution' => 'nullable|numeric'
             ]);
 
             // Upload images
@@ -64,12 +61,21 @@ class CampaignController extends Controller
                 ? $request->file('campaign_image_3')->store('campaign_images', 'public')
                 : null;
 
+            // Set nilai default untuk 'active', 'approved', dan 'distribution'
+            $validatedData['active'] = 1;
+            $validatedData['approved'] = 1;
+            $validatedData['distribution'] = 0;
+            $validatedData['current_mount'] = 0;
+
+            // Simpan data campaign
             $campaign = Campaign::create($validatedData);
+
             return response()->json($campaign, 201);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
 
     public function show($id)
     {

@@ -21,7 +21,6 @@ class Campaign extends Model
         'location',
         'target_amount',
         'current_amount',
-        'admin_id',
         'distribution',
         'start_date',
         'end_date',
@@ -34,8 +33,4 @@ class Campaign extends Model
         return $this->belongsTo(CampaignCategory::class, 'campaign_category_id');
     }
 
-    public function admin()
-    {
-        return $this->belongsTo(Admin::class, 'admin_id');
-    }
 }
