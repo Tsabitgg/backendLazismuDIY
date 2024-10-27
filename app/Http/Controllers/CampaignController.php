@@ -14,7 +14,7 @@ class CampaignController extends Controller
         $categoryId = $request->input('category_id');
 
         // Query campaign dengan filter nama dan kategori jika ada
-        $campaigns = Campaign::with('category', 'admin')
+        $campaigns = Campaign::with('category')
             ->when($search, function ($query, $search) {
                 $query->where('campaign_name', 'like', '%' . $search . '%');
             })
@@ -40,7 +40,6 @@ class CampaignController extends Controller
                 'description' => 'required',
                 'location' => 'required|string|max:255',
                 'target_amount' => 'required|numeric',
-                'admin_id' => 'required|exists:admins,id',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date|after:start_date',
                 'active' => 'required|boolean',
@@ -74,7 +73,7 @@ class CampaignController extends Controller
 
     public function show($id)
     {
-        return Campaign::with('category', 'admin')->findOrFail($id);
+        return Campaign::with('category')->findOrFail($id);
     }
 
     public function update(Request $request, $id)
