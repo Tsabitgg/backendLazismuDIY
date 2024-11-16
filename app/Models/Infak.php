@@ -11,7 +11,8 @@ class Infak extends Model
 
     protected $fillable = [
         'category_name', 
-        'amount', 
-        'distribution'
+        'thumbnail',
+        'amount' => 0,
+        'distribution' => 0,
     ];
 }

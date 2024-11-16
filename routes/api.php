@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\CampaignCategoryController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\InfakController;
@@ -31,6 +32,11 @@ Route::apiResource('campaign-categories', CampaignCategoryController::class);
 Route::apiResource('infaks', InfakController::class);
 Route::apiResource('zakats', ZakatController::class);;
 Route::apiResource('wakafs', WakafController::class);
+
+Route::prefix('api/billing')->group(function () {
+    Route::post('{category}/{id}', [BillingController::class, 'storeByCategory']);
+});
+
 
 Route::get('transactions', [TransactionController::class, 'index']);
 

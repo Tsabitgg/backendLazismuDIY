@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('zakats', function (Blueprint $table) {
             $table->id();
             $table->string('category_name');
+            $table->string('thumbnail');
             $table->double('amount');
             $table->double('distribution');
             $table->timestamps();

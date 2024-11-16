@@ -10,8 +10,9 @@ class Zakat extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category_name', 
-        'amount', 
-        'distribution'
+        'category_name',
+        'thumbnail', 
+        'amount' => 0,
+        'distribution' => 0,
     ];
 }
