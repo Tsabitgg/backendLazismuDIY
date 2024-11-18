@@ -23,57 +23,82 @@ class BillingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function storeByCategory(Request $request, $category, $id)
+    public function createBilling(Request $request, $categoryType, $id)
     {
-        // Validasi input
-        $validated = $request->validate([
-            'username' => 'required_without:user_id|string|max:20', // Required jika user_id null
-            'phone_number' => 'required_without:user_id|string|max:15',
-            'billing_amount' => 'required|numeric',
-            'message' => 'nullable|string',
+        $request->validate([
+            'amount' => 'required|numeric',
+            'username' => 'required|string|max:20',
+            'phone_number' => 'required|string|max:15',
+            'message' => 'nullable|string|max:255',
         ]);
+    
+        // Buat objek billing baru
+        $billing = new Billing();
+        $billing->billing_amount = $request->input('amount');
+        $billing->username = $request->input('username');
+        $billing->phone_number = $request->input('phone_number');
+        $billing->message = $request->input('message');
+        $billing->billing_date = now();
+        $billing->category = $categoryType;
+        $billing->method = 'ONLINE';
+        $billing->success = false;
 
-        // Ambil data entitas berdasarkan kategori
-        $relatedModel = $this->getRelatedModel($category);
-        if (!$relatedModel) {
-            return response()->json(['error' => 'Invalid category'], 400);
-        }
-
-        $relatedEntity = $relatedModel::find($id);
-        if (!$relatedEntity) {
-            return response()->json(['error' => 'Entity not found'], 404);
-        }
-
-        // Tambahkan data tagihan
-        $data = $validated;
+        $billing->created_time = substr((string) intval(microtime(true) * 1000), -8);
+    
+        // Set Virtual Account (VA) Number
         if (Auth::check()) {
-            $data['user_id'] = Auth::id();
+            $user = Auth::user();
+            $updatedVaNumber = '797706' . str_pad($user->va_number ?? rand(1000000000, 9999999999), 10, '0', STR_PAD_LEFT);
+            $billing->va_number = (int) $updatedVaNumber;
         } else {
-            $data['user_id'] = null;
+            $vaNumber = '797706' . rand(1000000000, 9999999999);
+            $billing->va_number = (int) $vaNumber;
         }
-
-        $data['created_time'] = now()->format('His');
-        $data['billing_date'] = now();
-        $data["{$category}_id"] = $relatedEntity->id; // Masukkan foreign key sesuai kategori
-
-        // Simpan data tagihan
-        $billing = Billing::create($data);
+    
+        // Set tipe tagihan berdasarkan categoryType
+        switch ($categoryType) {
+            case 'campaign':
+                $campaign = Campaign::where('id', $id)->first();
+                if (!$campaign) {
+                    return response()->json(['error' => 'Campaign not found with id: ' . $id], 404);
+                }
+                $billing->campaign_id = $campaign->id;
+                break;
+    
+            case 'zakat':
+                $zakat = Zakat::where('id', $id)->first();
+                if (!$zakat) {
+                    return response()->json(['error' => 'Zakat not found with id: ' . $id], 404);
+                }
+                $billing->zakat_id = $zakat->id;
+                break;
+    
+            case 'infak':
+                $infak = Infak::where('id', $id)->first();
+                if (!$infak) {
+                    return response()->json(['error' => 'Infak not found with id: ' . $id], 404);
+                }
+                $billing->infak_id = $infak->id;
+                break;
+    
+            case 'wakaf':
+                $wakaf = Wakaf::where('id', $id)->first();
+                if (!$wakaf) {
+                    return response()->json(['error' => 'Wakaf not found with id: ' . $id], 404);
+                }
+                $billing->wakaf_id = $wakaf->id;
+                break;
+    
+            default:
+                return response()->json(['error' => 'Invalid transaction type: ' . $categoryType], 400);
+        }
+    
+        // Simpan data ke database
+        $billing->save();
+    
         return response()->json($billing, 201);
     }
-
-    /**
-     * Menentukan model terkait berdasarkan kategori
-     */
-    private function getRelatedModel($category)
-    {
-        return match ($category) {
-            'zakat' => Zakat::class,
-            'infak' => Infak::class,
-            'campaign' => Campaign::class,
-            'wakaf' => Wakaf::class,
-            default => null,
-        };
-    }
+    
 
     /**
      * Display the specified resource.

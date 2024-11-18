@@ -5,6 +5,7 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\CampaignCategoryController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\InfakController;
+use App\Http\Controllers\QrisController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WakafController;
@@ -33,9 +34,8 @@ Route::apiResource('infaks', InfakController::class);
 Route::apiResource('zakats', ZakatController::class);;
 Route::apiResource('wakafs', WakafController::class);
 
-Route::prefix('api/billing')->group(function () {
-    Route::post('{category}/{id}', [BillingController::class, 'storeByCategory']);
-});
+Route::post('/billing/create/{categoryType}/{id}', [BillingController::class, 'createBilling']);
+Route::get('/generate-qris', [QrisController::class, 'generate']);
 
 
 Route::get('transactions', [TransactionController::class, 'index']);
