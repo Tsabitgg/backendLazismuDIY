@@ -36,6 +36,7 @@ Route::apiResource('wakafs', WakafController::class);
 
 Route::post('/billing/create/{categoryType}/{id}', [BillingController::class, 'createBilling']);
 Route::get('/generate-qris', [QrisController::class, 'generate']);
+Route::get('/check-status', [QrisController::class, 'checkStatus']);
 
 
 Route::get('transactions', [TransactionController::class, 'index']);
@@ -51,3 +52,6 @@ Route::get('users', [UserController::class, 'index']);
 Route::get('users/{id}', [UserController::class, 'show']);
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+
+Route::post('register-admin', [AuthController::class, 'registerAdmin']);
+Route::post('login-admin', [AuthController::class, 'loginAdmin']);

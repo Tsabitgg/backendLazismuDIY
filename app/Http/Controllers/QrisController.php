@@ -22,9 +22,9 @@ class QrisController extends Controller
     
         if ($row) {
             $data = [
-                "accountNo" => "1030005418",
+                "accountNo" => "5320017203",
                 "amount" => strval($row->billing_amount),
-                "mitraCustomerId" => "DT Peduli508362",
+                "mitraCustomerId" => "LAZIZMU DIY274029",
                 "transactionId" => strval($row->created_time),
                 "tipeTransaksi" => "MTR-GENERATE-QRIS-DYNAMIC",
                 "vano" => strval($row->va_number)
@@ -72,6 +72,63 @@ class QrisController extends Controller
             }
     
             return response()->json($responseData);
+        }
+    
+        return response()->json(['success' => false, 'message' => 'Data tidak ditemukan']);
+    }
+
+    public function checkStatus(Request $request)
+    {
+        $createdTime = $request->query('createdTime');
+    
+        if (is_null($createdTime) || $createdTime <= 0) {
+            return response()->json(['success' => false, 'message' => 'createdTime tidak valid']);
+        }
+    
+        // Query database menggunakan Eloquent atau Query Builder
+        $row = DB::table('billings')->where('created_time', $createdTime)->first();
+    
+        if ($row) {
+            $dataCheckStatus = [
+                "accountNo" => "5320017203",
+                "amount" => strval($row->billing_amount),
+                "merchantId" => "839853200172032",
+                "mitraCustomerId" => "LAZIZMU DIY274029",
+                "transactionId" => strval($row->created_time),
+                "transactionQrId" => $row->transaction_qr_id,
+                "tipeTransaksi" => "MTR-CHECK-STATUS"
+            ];
+    
+            $secretKey = 'TokenJWT_BMI_ICT';
+            $jwtTokenCheckStatus = JWT::encode($dataCheckStatus, $secretKey);
+    
+            $url = 'http://10.99.23.111/qris/bandung_dt_peduli/server.php?token=' . urlencode($jwtTokenCheckStatus);
+    
+            // Inisialisasi cURL
+            $chCheckStatus = curl_init($url);
+            curl_setopt($chCheckStatus, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($chCheckStatus, CURLOPT_POST, true);
+            curl_setopt($chCheckStatus, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+            ]);
+    
+            // Eksekusi cURL
+            $responseCheckStatus = curl_exec($chCheckStatus);
+    
+            // Periksa kesalahan cURL
+            if (curl_errno($chCheckStatus)) {
+                $error = curl_error($chCheckStatus);
+                curl_close($chCheckStatus);
+                return response()->json(['success' => false, 'message' => 'cURL Error: ' . $error]);
+            }
+    
+            // Tutup koneksi cURL
+            curl_close($chCheckStatus);
+    
+            // Decode respons
+            $responseDataCheckStatus = json_decode($responseCheckStatus, true);
+    
+            return response()->json($responseDataCheckStatus);
         }
     
         return response()->json(['success' => false, 'message' => 'Data tidak ditemukan']);
