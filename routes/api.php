@@ -37,6 +37,7 @@ Route::apiResource('wakafs', WakafController::class);
 Route::post('/billing/create/{categoryType}/{id}', [BillingController::class, 'createBilling']);
 Route::get('/generate-qris', [QrisController::class, 'generate']);
 Route::get('/check-status', [QrisController::class, 'checkStatus']);
+Route::get('/push-notification', [QrisController::class, 'pushNotification']);
 
 
 Route::get('transactions', [TransactionController::class, 'index']);

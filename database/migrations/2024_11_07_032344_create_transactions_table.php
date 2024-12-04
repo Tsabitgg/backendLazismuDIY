@@ -23,6 +23,7 @@ return new class extends Migration {
             $table->string('va_number')->nullable();
             $table->string('method')->nullable();
             $table->unsignedBigInteger('transaction_qr_id')->nullable();
+            $table->string('created_time')->nullable();
             $table->boolean('success')->default(false);
             $table->string('category', 20)->nullable();
             $table->foreignId('campaign_id')->nullable()->constrained('campaigns')->onDelete('set null');

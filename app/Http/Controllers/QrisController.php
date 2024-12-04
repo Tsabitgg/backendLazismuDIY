@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use App\Helpers\JWT;
+use Exception;
 
 class QrisController extends Controller
 {
@@ -133,5 +134,120 @@ class QrisController extends Controller
     
         return response()->json(['success' => false, 'message' => 'Data tidak ditemukan']);
     }
+
+    public function pushNotification(Request $request)
+    {
+        $token = $request->input('token');
+        
+        if (empty($token)) {
+            return response()->json([
+                'responseCode' => '01',
+                'responseMessage' => 'Token tidak ditemukan',
+                'responseTimestamp' => now()
+            ]);
+        }
+    
+        $secretKey = 'TokenJWT_BMI_ICT';
+    
+        try {
+            $decoded = JWT::decode($token, $secretKey, ['HS256']);
+    
+            $responseCode = $decoded->responseCode;
+            $responseMessage = $decoded->responseMessage;
+            $responseTimestamp = $decoded->responseTimestamp;
+            $transactionId = $decoded->transactionId;
+            $data = $decoded->data;
+    
+            if ($responseCode === '00') {
+                // Process notification data
+                $vano = $data->vano;
+                $amount = $data->amount;
+                $accountNo = $data->accountNo;
+                $transactionQrId = $data->transactionQrId;
+                $description = $data->description;
+    
+                // Get the billing data
+                $billing = DB::table('billings')->where('transaksi_qr_id', $transactionQrId)->first();
+    
+                if ($billing) {
+                    // Retrieve the campaign, wakaf, zakat, infak IDs from billing
+                    $campaignId = $billing->campaign_id;
+                    $wakafId = $billing->wakaf_id;
+                    $zakatId = $billing->zakat_id;
+                    $infakId = $billing->infak_id;
+    
+                    // Update the billing table with success
+                    DB::table('billing')->where('transaksi_qr_id', $transactionQrId)->update(['success' => 1]);
+    
+                    DB::table('transaksi')->insert([
+                        'invoice_id' => null,
+                        'donatur' => $billing->username,
+                        'phone_number' => $billing->phone_number,
+                        'email' => null,
+                        'transaction_amount' => $amount,
+                        'message' => $billing->message,
+                        'transaction_date' => now(),
+                        'channel' => 'ONLINE',
+                        'va_number' => $vano,
+                        'method' => 'QRIS',
+                        'transaction_qr_id' => $transactionQrId,
+                        'created_time' => $billing->created_time,
+                        'category'=> $billing->category,
+                        'success' => 1,
+                        'campaign_id' => $campaignId ?? null,
+                        'wakaf_id' => $wakafId ?? null,
+                        'zakat_id' => $zakatId ?? null,
+                        'infak_id' => $infakId ?? null
+                    ]);
+    
+                    if ($campaignId) {
+                        DB::table('campaign')->where('campaign_id', $campaignId)
+                            ->increment('amount', $billing->jumlah_setoran);
+                    }
+    
+                    if ($wakafId) {
+                        DB::table('wakaf')->where('wakaf_id', $wakafId)
+                            ->increment('amount', $billing->jumlah_setoran);
+                    }
+    
+                    if ($zakatId) {
+                        DB::table('zakat')->where('zakat_id', $zakatId)
+                            ->increment('amount', $billing->jumlah_setoran);
+                    }
+    
+                    if ($infakId) {
+                        DB::table('infak')->where('infak_id', $infakId)
+                            ->increment('amount', $billing->jumlah_setoran);
+                    }
+    
+                    return response()->json([
+                        'responseCode' => '00',
+                        'responseMessage' => 'TRANSACTION SUCCESS',
+                        'responseTimestamp' => now(),
+                        'transactionId' => $transactionId
+                    ]);
+                }
+    
+                return response()->json([
+                    'responseCode' => '01',
+                    'responseMessage' => 'Billing data not found',
+                    'responseTimestamp' => now()
+                ]);
+            } else {
+                return response()->json([
+                    'responseCode' => '01',
+                    'responseMessage' => $responseMessage,
+                    'responseTimestamp' => now()
+                ]);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'responseCode' => '01',
+                'responseMessage' => 'Invalid token or data',
+                'responseTimestamp' => now()
+            ]);
+        }
+    }
+    
     
 }
