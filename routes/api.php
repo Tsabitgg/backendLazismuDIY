@@ -43,7 +43,7 @@ Route::prefix('latestNews/{category}')->group(function () {
     Route::delete('{id}', [LatestNewsController::class, 'destroy']);
 });
 
-Route::get('/{category}/{id}', [LatestNewsController::class, 'getByCategoryAndEntityId']);
+Route::get('latestNews/list/{category}/{id}', [LatestNewsController::class, 'getByCategoryAndEntityId']);
 
 
 Route::post('/billing/create/{categoryType}/{id}', [BillingController::class, 'createBilling']);
