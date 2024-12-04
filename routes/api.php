@@ -10,6 +10,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WakafController;
 use App\Http\Controllers\ZakatController;
+use App\Http\Controllers\LatestNewsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,15 @@ Route::apiResource('campaign-categories', CampaignCategoryController::class);
 Route::apiResource('infaks', InfakController::class);
 Route::apiResource('zakats', ZakatController::class);;
 Route::apiResource('wakafs', WakafController::class);
+
+// Routing with category and ID
+Route::prefix('latestNews/{category}')->group(function () {
+    Route::get('{id}', [LatestNewsController::class, 'show']);
+    Route::post('{id}', [LatestNewsController::class, 'store']);
+    Route::put('{id}', [LatestNewsController::class, 'update']);
+    Route::delete('{id}', [LatestNewsController::class, 'destroy']);
+});
+
 
 Route::post('/billing/create/{categoryType}/{id}', [BillingController::class, 'createBilling']);
 Route::get('/generate-qris', [QrisController::class, 'generate']);
