@@ -34,7 +34,7 @@ class QrisController extends Controller
             $secretKey = 'TokenJWT_BMI_ICT';
             $jwtToken = JWT::encode($data, $secretKey);
     
-            $url = 'http://10.99.23.111/qris/bandung_dt_peduli/server.php?token=' . urlencode($jwtToken);
+            $url = 'http://10.99.23.111/qris/lazizmu_diy/server.php?token=' . urlencode($jwtToken);
     
             // Inisialisasi cURL
             $ch = curl_init($url);
@@ -103,7 +103,7 @@ class QrisController extends Controller
             $secretKey = 'TokenJWT_BMI_ICT';
             $jwtTokenCheckStatus = JWT::encode($dataCheckStatus, $secretKey);
     
-            $url = 'http://10.99.23.111/qris/bandung_dt_peduli/server.php?token=' . urlencode($jwtTokenCheckStatus);
+            $url = 'http://10.99.23.111/qris/lazizmu_diy/server.php?token=' . urlencode($jwtTokenCheckStatus);
     
             // Inisialisasi cURL
             $chCheckStatus = curl_init($url);
