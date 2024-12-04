@@ -46,15 +46,15 @@ return [
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', '10.99.23.111'),
+            'host' => env('DB_HOST', '103.23.103.43'),
             'port' => env('DB_PORT', '3306'),
             // 'database' => env('DB_DATABASE', 'forge'),
             // 'username' => env('DB_USERNAME', 'forge'),
             // 'password' => env('DB_PASSWORD', ''),
             // temporary fix for messed up .env in apache
             'database' => 'lazismu_diy',
-            'username' => 'root',
-            'password' => 'Smartpay1ct',
+            'username' => 'elpe',
+            'password' => 'Bismillah99',
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',

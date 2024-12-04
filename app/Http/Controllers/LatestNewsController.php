@@ -73,4 +73,24 @@ class LatestNewsController extends Controller
 
         return response()->json(['message' => 'Latest news deleted successfully.']);
     }
+
+    public function getByCategoryAndEntityId($category, $id)
+    {
+        // Validate category
+        $validCategories = ['campaign', 'zakat', 'infak', 'wakaf'];
+        if (!in_array($category, $validCategories)) {
+            return response()->json(['error' => 'Invalid category'], 400);
+        }
+
+        // Build query based on category
+        $column = $category . '_id';
+        $latestNews = latestNews::where($column, $id)->get();
+
+        // Check if any news is found
+        if ($latestNews->isEmpty()) {
+            return response()->json(['message' => 'No latest news found for this category and ID'], 404);
+        }
+
+        return response()->json($latestNews);
+    }
 }
