@@ -167,7 +167,7 @@ class QrisController extends Controller
                 $description = $data->description;
     
                 // Get the billing data
-                $billing = DB::table('billings')->where('transaksi_qr_id', $transactionQrId)->first();
+                $billing = DB::table('billings')->where('transaction_qr_id', $transactionQrId)->first();
     
                 if ($billing) {
                     // Retrieve the campaign, wakaf, zakat, infak IDs from billing
@@ -177,7 +177,7 @@ class QrisController extends Controller
                     $infakId = $billing->infak_id;
     
                     // Update the billing table with success
-                    DB::table('billing')->where('transaksi_qr_id', $transactionQrId)->update(['success' => 1]);
+                    DB::table('billing')->where('transaction_qr_id', $transactionQrId)->update(['success' => 1]);
     
                     DB::table('transaksi')->insert([
                         'invoice_id' => null,
