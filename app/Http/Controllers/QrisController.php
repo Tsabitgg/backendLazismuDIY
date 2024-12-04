@@ -202,22 +202,22 @@ class QrisController extends Controller
     
                     if ($campaignId) {
                         DB::table('campaign')->where('campaign_id', $campaignId)
-                            ->increment('amount', $billing->jumlah_setoran);
+                            ->increment('amount', $billing->current_amount);
                     }
     
                     if ($wakafId) {
                         DB::table('wakaf')->where('wakaf_id', $wakafId)
-                            ->increment('amount', $billing->jumlah_setoran);
+                            ->increment('amount', $billing->amount);
                     }
     
                     if ($zakatId) {
                         DB::table('zakat')->where('zakat_id', $zakatId)
-                            ->increment('amount', $billing->jumlah_setoran);
+                            ->increment('amount', $billing->amount);
                     }
     
                     if ($infakId) {
                         DB::table('infak')->where('infak_id', $infakId)
-                            ->increment('amount', $billing->jumlah_setoran);
+                            ->increment('amount', $billing->amount);
                     }
     
                     return response()->json([
