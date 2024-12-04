@@ -48,10 +48,10 @@ class BillingController extends Controller
         // Set Virtual Account (VA) Number
         if (Auth::check()) {
             $user = Auth::user();
-            $updatedVaNumber = '797706' . str_pad($user->va_number ?? rand(1000000000, 9999999999), 10, '0', STR_PAD_LEFT);
+            $updatedVaNumber = '797755' . str_pad($user->va_number ?? rand(1000000000, 9999999999), 10, '0', STR_PAD_LEFT);
             $billing->va_number = (int) $updatedVaNumber;
         } else {
-            $vaNumber = '797706' . rand(1000000000, 9999999999);
+            $vaNumber = '797755' . rand(1000000000, 9999999999);
             $billing->va_number = (int) $vaNumber;
         }
     
