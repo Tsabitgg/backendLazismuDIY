@@ -177,9 +177,9 @@ class QrisController extends Controller
                     $infakId = $billing->infak_id;
     
                     // Update the billing table with success
-                    DB::table('billing')->where('transaction_qr_id', $transactionQrId)->update(['success' => 1]);
+                    DB::table('billings')->where('transaction_qr_id', $transactionQrId)->update(['success' => 1]);
     
-                    DB::table('transaksi')->insert([
+                    DB::table('transactions')->insert([
                         'invoice_id' => null,
                         'donatur' => $billing->username,
                         'phone_number' => $billing->phone_number,
@@ -201,22 +201,22 @@ class QrisController extends Controller
                     ]);
     
                     if ($campaignId) {
-                        DB::table('campaign')->where('campaign_id', $campaignId)
+                        DB::table('campaigns')->where('campaign_id', $campaignId)
                             ->increment('amount', $billing->current_amount);
                     }
     
                     if ($wakafId) {
-                        DB::table('wakaf')->where('wakaf_id', $wakafId)
+                        DB::table('wakafs')->where('wakaf_id', $wakafId)
                             ->increment('amount', $billing->amount);
                     }
     
                     if ($zakatId) {
-                        DB::table('zakat')->where('zakat_id', $zakatId)
+                        DB::table('zakats')->where('zakat_id', $zakatId)
                             ->increment('amount', $billing->amount);
                     }
     
                     if ($infakId) {
-                        DB::table('infak')->where('infak_id', $infakId)
+                        DB::table('infaks')->where('infak_id', $infakId)
                             ->increment('amount', $billing->amount);
                     }
     
