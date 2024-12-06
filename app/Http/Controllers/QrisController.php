@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use App\Helpers\JWT;
 use Exception;
+use Illuminate\Support\Str;
 
 class QrisController extends Controller
 {
@@ -179,8 +180,12 @@ class QrisController extends Controller
                     // Update the billing table with success
                     DB::table('billings')->where('transaction_qr_id', $transactionQrId)->update(['success' => 1]);
     
+                    do {
+                        $invoiceId = 'INV-' . now()->format('ymd') . strtoupper(Str::random(5));
+                    } while (DB::table('transactions')->where('invoice_id', $invoiceId)->exists());
+
                     DB::table('transactions')->insert([
-                        'invoice_id' => null,
+                        'invoice_id' => $invoiceId,
                         'donatur' => $billing->username,
                         'phone_number' => $billing->phone_number,
                         'email' => null,
@@ -201,23 +206,23 @@ class QrisController extends Controller
                     ]);
     
                     if ($campaignId) {
-                        DB::table('campaigns')->where('campaign_id', $campaignId)
-                            ->increment('amount', $billing->current_amount);
+                        DB::table('campaigns')->where('id', $campaignId)
+                            ->increment('current_amount', $billing->billing_amount);
                     }
     
                     if ($wakafId) {
-                        DB::table('wakafs')->where('wakaf_id', $wakafId)
-                            ->increment('amount', $billing->amount);
+                        DB::table('wakafs')->where('id', $wakafId)
+                            ->increment('amount', $billing->billing_amount);
                     }
     
                     if ($zakatId) {
-                        DB::table('zakats')->where('zakat_id', $zakatId)
-                            ->increment('amount', $billing->amount);
+                        DB::table('zakats')->where('id', $zakatId)
+                            ->increment('amount', $billing->billing_amount);
                     }
     
                     if ($infakId) {
-                        DB::table('infaks')->where('infak_id', $infakId)
-                            ->increment('amount', $billing->amount);
+                        DB::table('infaks')->where('id', $infakId)
+                            ->increment('amount', $billing->billing_amount);
                     }
     
                     return response()->json([
@@ -243,7 +248,7 @@ class QrisController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'responseCode' => '01',
-                'responseMessage' => 'Invalid token or data',
+                'responseMessage' => 'Invalid token or data' . $e,
                 'responseTimestamp' => now()
             ]);
         }

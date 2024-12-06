@@ -32,6 +32,7 @@ class CampaignController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request);
         try {
             $validatedData = $request->validate([
                 'campaign_category_id' => 'required|exists:campaign_categories,id',
@@ -88,6 +89,7 @@ class CampaignController extends Controller
     {
         try {
             $campaign = Campaign::findOrFail($id);
+            // dd($request);
             
             $validatedData = $request->validate([
                 'campaign_category_id' => 'sometimes|exists:campaign_categories,id',
