@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use App\Helpers\JWT;
+use App\Helpers\Logger;
 use Exception;
 use Illuminate\Support\Str;
 
@@ -52,6 +53,7 @@ class QrisController extends Controller
             if (curl_errno($ch)) {
                 $error = curl_error($ch);
                 curl_close($ch);
+                Logger::log('Generate QRIS', $data, null, $error); // Log error
                 return response()->json(['success' => false, 'message' => 'cURL Error: ' . $error]);
             }
     
@@ -60,6 +62,7 @@ class QrisController extends Controller
     
             // Decode respons
             $responseData = json_decode($response, true);
+            Logger::log('Generate QRIS', $data, $responseData, 'success'); // Log sukses
     
             if (isset($responseData['transactionDetail']['transactionQrId'])) {
                 $transactionQrId = $responseData['transactionDetail']['transactionQrId'];
@@ -121,6 +124,7 @@ class QrisController extends Controller
             if (curl_errno($chCheckStatus)) {
                 $error = curl_error($chCheckStatus);
                 curl_close($chCheckStatus);
+                Logger::log('Check Status Qris', $dataCheckStatus, null, $error); // Log sukses
                 return response()->json(['success' => false, 'message' => 'cURL Error: ' . $error]);
             }
     
@@ -129,6 +133,7 @@ class QrisController extends Controller
     
             // Decode respons
             $responseDataCheckStatus = json_decode($responseCheckStatus, true);
+            Logger::log('Check Status QRIS', $dataCheckStatus, $responseDataCheckStatus, 'success'); // Log sukses
     
             return response()->json($responseDataCheckStatus);
         }
@@ -137,122 +142,129 @@ class QrisController extends Controller
     }
 
     public function pushNotification(Request $request)
-    {
-        $token = $request->input('token');
-        
-        if (empty($token)) {
-            return response()->json([
-                'responseCode' => '01',
-                'responseMessage' => 'Token tidak ditemukan',
-                'responseTimestamp' => now()
-            ]);
-        }
-    
-        $secretKey = 'TokenJWT_BMI_ICT';
-    
-        try {
-            $decoded = JWT::decode($token, $secretKey, ['HS256']);
-    
-            $responseCode = $decoded->responseCode;
-            $responseMessage = $decoded->responseMessage;
-            $responseTimestamp = $decoded->responseTimestamp;
-            $transactionId = $decoded->transactionId;
-            $data = $decoded->data;
-    
-            if ($responseCode === '00') {
-                // Process notification data
-                $vano = $data->vano;
-                $amount = $data->amount;
-                $accountNo = $data->accountNo;
-                $transactionQrId = $data->transactionQrId;
-                $description = $data->description;
-    
-                // Get the billing data
-                $billing = DB::table('billings')->where('transaction_qr_id', $transactionQrId)->first();
-    
-                if ($billing) {
-                    // Retrieve the campaign, wakaf, zakat, infak IDs from billing
-                    $campaignId = $billing->campaign_id;
-                    $wakafId = $billing->wakaf_id;
-                    $zakatId = $billing->zakat_id;
-                    $infakId = $billing->infak_id;
-    
-                    // Update the billing table with success
-                    DB::table('billings')->where('transaction_qr_id', $transactionQrId)->update(['success' => 1]);
-    
-                    do {
-                        $invoiceId = 'INV-' . now()->format('ymd') . strtoupper(Str::random(5));
-                    } while (DB::table('transactions')->where('invoice_id', $invoiceId)->exists());
+{
+    $token = $request->input('token');
 
-                    DB::table('transactions')->insert([
-                        'invoice_id' => $invoiceId,
-                        'donatur' => $billing->username,
-                        'phone_number' => $billing->phone_number,
-                        'email' => null,
-                        'transaction_amount' => $amount,
-                        'message' => $billing->message,
-                        'transaction_date' => now(),
-                        'channel' => 'ONLINE',
-                        'va_number' => $vano,
-                        'method' => 'QRIS',
-                        'transaction_qr_id' => $transactionQrId,
-                        'created_time' => $billing->created_time,
-                        'category'=> $billing->category,
-                        'success' => 1,
-                        'campaign_id' => $campaignId ?? null,
-                        'wakaf_id' => $wakafId ?? null,
-                        'zakat_id' => $zakatId ?? null,
-                        'infak_id' => $infakId ?? null
-                    ]);
-    
-                    if ($campaignId) {
-                        DB::table('campaigns')->where('id', $campaignId)
-                            ->increment('current_amount', $billing->billing_amount);
-                    }
-    
-                    if ($wakafId) {
-                        DB::table('wakafs')->where('id', $wakafId)
-                            ->increment('amount', $billing->billing_amount);
-                    }
-    
-                    if ($zakatId) {
-                        DB::table('zakats')->where('id', $zakatId)
-                            ->increment('amount', $billing->billing_amount);
-                    }
-    
-                    if ($infakId) {
-                        DB::table('infaks')->where('id', $infakId)
-                            ->increment('amount', $billing->billing_amount);
-                    }
-    
-                    return response()->json([
-                        'responseCode' => '00',
-                        'responseMessage' => 'TRANSACTION SUCCESS',
-                        'responseTimestamp' => now(),
-                        'transactionId' => $transactionId
-                    ]);
-                }
-    
-                return response()->json([
-                    'responseCode' => '01',
-                    'responseMessage' => 'Billing data not found',
-                    'responseTimestamp' => now()
+    if (empty($token)) {
+        Logger::log('Push Notification', $request->all(), null, 'Token tidak ditemukan');
+        return response()->json([
+            'responseCode' => '01',
+            'responseMessage' => 'Token tidak ditemukan',
+            'responseTimestamp' => now()
+        ]);
+    }
+
+    $secretKey = 'TokenJWT_BMI_ICT';
+
+    try {
+        $decoded = JWT::decode($token, $secretKey, ['HS256']);
+
+        $responseCode = $decoded->responseCode;
+        $responseMessage = $decoded->responseMessage;
+        $responseTimestamp = $decoded->responseTimestamp;
+        $transactionId = $decoded->transactionId;
+        $data = $decoded->data;
+
+        if ($responseCode === '00') {
+            $vano = $data->vano;
+            $amount = $data->amount;
+            $accountNo = $data->accountNo;
+            $transactionQrId = $data->transactionQrId;
+            $description = $data->description;
+
+            $billing = DB::table('billings')->where('transaction_qr_id', $transactionQrId)->first();
+
+            if ($billing) {
+                $campaignId = $billing->campaign_id;
+                $wakafId = $billing->wakaf_id;
+                $zakatId = $billing->zakat_id;
+                $infakId = $billing->infak_id;
+
+                DB::table('billings')->where('transaction_qr_id', $transactionQrId)->update(['success' => 1]);
+
+                do {
+                    $invoiceId = 'INV-' . now()->format('ymd') . strtoupper(Str::random(5));
+                } while (DB::table('transactions')->where('invoice_id', $invoiceId)->exists());
+
+                DB::table('transactions')->insert([
+                    'invoice_id' => $invoiceId,
+                    'donatur' => $billing->username,
+                    'phone_number' => $billing->phone_number,
+                    'email' => null,
+                    'transaction_amount' => $amount,
+                    'message' => $billing->message,
+                    'transaction_date' => now(),
+                    'channel' => 'ONLINE',
+                    'va_number' => $vano,
+                    'method' => 'QRIS',
+                    'transaction_qr_id' => $transactionQrId,
+                    'created_time' => $billing->created_time,
+                    'category'=> $billing->category,
+                    'success' => 1,
+                    'campaign_id' => $campaignId ?? null,
+                    'wakaf_id' => $wakafId ?? null,
+                    'zakat_id' => $zakatId ?? null,
+                    'infak_id' => $infakId ?? null
                 ]);
-            } else {
+
+                if ($campaignId) {
+                    DB::table('campaigns')->where('id', $campaignId)
+                        ->increment('current_amount', $billing->billing_amount);
+                }
+
+                if ($wakafId) {
+                    DB::table('wakafs')->where('id', $wakafId)
+                        ->increment('amount', $billing->billing_amount);
+                }
+
+                if ($zakatId) {
+                    DB::table('zakats')->where('id', $zakatId)
+                        ->increment('amount', $billing->billing_amount);
+                }
+
+                if ($infakId) {
+                    DB::table('infaks')->where('id', $infakId)
+                        ->increment('amount', $billing->billing_amount);
+                }
+
+                Logger::log('Push Notification', $request->all(), [
+                    'responseCode' => '00',
+                    'responseMessage' => 'TRANSACTION SUCCESS',
+                    'transactionId' => $transactionId
+                ]);
+
                 return response()->json([
-                    'responseCode' => '01',
-                    'responseMessage' => $responseMessage,
-                    'responseTimestamp' => now()
+                    'responseCode' => '00',
+                    'responseMessage' => 'TRANSACTION SUCCESS',
+                    'responseTimestamp' => now(),
+                    'transactionId' => $transactionId
                 ]);
             }
-        } catch (Exception $e) {
+
+            Logger::log('Push Notification', $request->all(), null, 'Billing data not found');
             return response()->json([
                 'responseCode' => '01',
-                'responseMessage' => 'Invalid token or data' . $e,
+                'responseMessage' => 'Billing data not found',
+                'responseTimestamp' => now()
+            ]);
+        } else {
+            Logger::log('Push Notification', $request->all(), null, $responseMessage);
+            return response()->json([
+                'responseCode' => '01',
+                'responseMessage' => $responseMessage,
                 'responseTimestamp' => now()
             ]);
         }
+    } catch (Exception $e) {
+        Logger::log('Push Notification', $request->all(), null, $e->getMessage());
+        return response()->json([
+            'responseCode' => '01',
+            'responseMessage' => 'Invalid token or data: ' . $e->getMessage(),
+            'responseTimestamp' => now()
+        ]);
     }
+}
+
     
     
 }
