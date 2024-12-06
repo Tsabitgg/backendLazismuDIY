@@ -29,8 +29,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Route::apiResource('campaigns', CampaignController::class);
-Route::put('/campaigns/{id}', [CampaignController::class, 'update']);
+Route::apiResource('campaigns', CampaignController::class);
+// Route::put('/campaigns/{id}', [CampaignController::class, 'update']);
 
 Route::apiResource('campaign-categories', CampaignCategoryController::class);
 Route::apiResource('infaks', InfakController::class);
