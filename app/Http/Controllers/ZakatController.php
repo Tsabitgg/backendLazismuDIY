@@ -52,10 +52,37 @@ class ZakatController extends Controller
     // Memperbarui data zakat
     public function update(Request $request, $id)
     {
-        $zakat = Zakat::findOrFail($id);
-        $zakat->update($request->all());
-        return response()->json($zakat);
+        try {
+            // Cari data infak berdasarkan ID
+            $zakat = Zakat::findOrFail($id);
+
+            // Validasi input
+            $validatedData = $request->validate([
+                'category_name' => 'sometimes|string|max:255',
+                'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+
+            // Proses thumbnail (gunakan gambar lama jika tidak diunggah)
+            if ($request->hasFile('thumbnail')) {
+                $uploadedFile = Cloudinary::upload($request->file('thumbnail')->getRealPath(), ['folder' => 'campaign_images']);
+                $validatedData['thumbnail'] = $uploadedFile->getSecurePath();
+            } else {
+                // Jika thumbnail tidak diunggah, gunakan data lama
+                $validatedData['thumbnail'] = $zakat->thumbnail;
+            }
+
+            // Gunakan nilai lama untuk field yang tidak ada di input
+            $validatedData['category_name'] = $request->input('category_name', $zakat->category_name);
+
+            // Perbarui data zakat
+            $zakat->update($validatedData);
+
+            return response()->json($zakat, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
+
 
     // Menghapus data zakat
     public function destroy($id)

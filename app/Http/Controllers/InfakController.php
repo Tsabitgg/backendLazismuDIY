@@ -48,10 +48,37 @@ class InfakController extends Controller
     // Memperbarui data infak
     public function update(Request $request, $id)
     {
-        $infak = Infak::findOrFail($id);
-        $infak->update($request->all());
-        return response()->json($infak);
+        try {
+            // Cari data infak berdasarkan ID
+            $infak = Infak::findOrFail($id);
+
+            // Validasi input
+            $validatedData = $request->validate([
+                'category_name' => 'sometimes|string|max:255',
+                'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+
+            // Proses thumbnail (gunakan gambar lama jika tidak diunggah)
+            if ($request->hasFile('thumbnail')) {
+                $uploadedFile = Cloudinary::upload($request->file('thumbnail')->getRealPath(), ['folder' => 'campaign_images']);
+                $validatedData['thumbnail'] = $uploadedFile->getSecurePath();
+            } else {
+                // Jika thumbnail tidak diunggah, gunakan data lama
+                $validatedData['thumbnail'] = $infak->thumbnail;
+            }
+
+            // Gunakan nilai lama untuk field yang tidak ada di input
+            $validatedData['category_name'] = $request->input('category_name', $infak->category_name);
+
+            // Perbarui data infak
+            $infak->update($validatedData);
+
+            return response()->json($infak, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
+
 
     // Menghapus data infak
     public function destroy($id)
