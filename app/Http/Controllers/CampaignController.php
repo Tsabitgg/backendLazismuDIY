@@ -96,7 +96,7 @@ class CampaignController extends Controller
             $validatedData = $request->validate([
                 'campaign_category_id' => 'sometimes|exists:campaign_categories,id',
                 'campaign_name' => 'sometimes|string|max:255',
-                'campaign_code' => 'sometimes|string|unique:campaigns,campaign_code',
+                'campaign_code' => 'sometimes|string|unique:campaigns,campaign_code,' . $id, // Abaikan validasi unique untuk ID ini
                 'campaign_thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'campaign_image_1' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'campaign_image_2' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
@@ -108,15 +108,12 @@ class CampaignController extends Controller
                 'end_date' => 'sometimes|date|after_or_equal:start_date',
             ]);
     
-            // Proses thumbnail
+            // Proses campaign thumbnail
             if ($request->hasFile('campaign_thumbnail')) {
                 $uploadedFile = Cloudinary::upload($request->file('campaign_thumbnail')->getRealPath(), ['folder' => 'campaign_images']);
                 $validatedData['campaign_thumbnail'] = $uploadedFile->getSecurePath();
             } else {
-                if (!$campaign->campaign_thumbnail) {
-                    return response()->json(['error' => 'Campaign thumbnail is required.'], 422);
-                }
-                $validatedData['campaign_thumbnail'] = $campaign->campaign_thumbnail;
+                $validatedData['campaign_thumbnail'] = $campaign->campaign_thumbnail; // Gunakan data lama jika tidak diunggah
             }
     
             // Proses campaign image 1-3 (gunakan gambar lama jika tidak diunggah)
@@ -140,6 +137,7 @@ class CampaignController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+    
     
     
     public function destroy($id)
