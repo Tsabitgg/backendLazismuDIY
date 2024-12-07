@@ -38,8 +38,6 @@ Route::prefix('campaigns')->group(function () {
     // Set priority to false
     Route::put('unset-priority/{id}', [CampaignController::class, 'setPriorityFalse']);
     
-    // Get all priority campaigns
-    Route::get('get-priority', [CampaignController::class, 'getPriorityCampaigns']);
 });
 
 Route::apiResource('campaign-categories', CampaignCategoryController::class);
@@ -55,6 +53,8 @@ Route::prefix('latestNews/{category}')->group(function () {
     Route::delete('{id}', [LatestNewsController::class, 'destroy']);
 });
 
+    // Get all priority campaigns
+Route::get('/campaign/get-priority', [CampaignController::class, 'getPriorityCampaigns']);
 Route::get('latestNews/list/{category}/{id}', [LatestNewsController::class, 'getByCategoryAndEntityId']);
 
 
