@@ -91,16 +91,16 @@ class CampaignController extends Controller
     {
         try {
             $campaign = Campaign::findOrFail($id);
-            // dd($request);
-            
+    
+            // Validasi input
             $validatedData = $request->validate([
                 'campaign_category_id' => 'sometimes|exists:campaign_categories,id',
                 'campaign_name' => 'sometimes|string|max:255',
-                'campaign_code' => 'sometimes|string|unique:campaigns,campaign_code,' . $campaign->id,
-                'campaign_thumbnail' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
-                'campaign_image_1' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
-                'campaign_image_2' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
-                'campaign_image_3' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
+                'campaign_code' => 'sometimes|string|unique:campaigns,campaign_code',
+                'campaign_thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'campaign_image_1' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'campaign_image_2' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'campaign_image_3' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'description' => 'sometimes|string',
                 'location' => 'sometimes|string|max:255',
                 'target_amount' => 'sometimes|numeric',
@@ -108,23 +108,31 @@ class CampaignController extends Controller
                 'end_date' => 'sometimes|date|after_or_equal:start_date',
             ]);
     
+            // Proses thumbnail
             if ($request->hasFile('campaign_thumbnail')) {
                 $uploadedFile = Cloudinary::upload($request->file('campaign_thumbnail')->getRealPath(), ['folder' => 'campaign_images']);
                 $validatedData['campaign_thumbnail'] = $uploadedFile->getSecurePath();
+            } else {
+                if (!$campaign->campaign_thumbnail) {
+                    return response()->json(['error' => 'Campaign thumbnail is required.'], 422);
+                }
+                $validatedData['campaign_thumbnail'] = $campaign->campaign_thumbnail;
             }
     
-            if ($request->hasFile('campaign_image_1')) {
-                $validatedData['campaign_image_1'] = Cloudinary::upload($request->file('campaign_image_1')->getRealPath(), ['folder' => 'campaign_images'])->getSecurePath();
-            }
+            // Proses campaign image 1-3 (gunakan gambar lama jika tidak diunggah)
+            $validatedData['campaign_image_1'] = $request->hasFile('campaign_image_1')
+                ? Cloudinary::upload($request->file('campaign_image_1')->getRealPath(), ['folder' => 'campaign_images'])->getSecurePath()
+                : $campaign->campaign_image_1;
     
-            if ($request->hasFile('campaign_image_2')) {
-                $validatedData['campaign_image_2'] = Cloudinary::upload($request->file('campaign_image_2')->getRealPath(), ['folder' => 'campaign_images'])->getSecurePath();
-            }
+            $validatedData['campaign_image_2'] = $request->hasFile('campaign_image_2')
+                ? Cloudinary::upload($request->file('campaign_image_2')->getRealPath(), ['folder' => 'campaign_images'])->getSecurePath()
+                : $campaign->campaign_image_2;
     
-            if ($request->hasFile('campaign_image_3')) {
-                $validatedData['campaign_image_3'] = Cloudinary::upload($request->file('campaign_image_3')->getRealPath(), ['folder' => 'campaign_images'])->getSecurePath();
-            }
+            $validatedData['campaign_image_3'] = $request->hasFile('campaign_image_3')
+                ? Cloudinary::upload($request->file('campaign_image_3')->getRealPath(), ['folder' => 'campaign_images'])->getSecurePath()
+                : $campaign->campaign_image_3;
     
+            // Update data campaign
             $campaign->update($validatedData);
     
             return response()->json($campaign, 200);
@@ -132,6 +140,7 @@ class CampaignController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+    
     
     public function destroy($id)
     {
