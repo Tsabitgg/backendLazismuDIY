@@ -8,10 +8,10 @@ use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class LatestNewsController extends Controller
 {
-    // Show news by ID and category
-    public function show($category, $id)
+
+    public function index($category)
     {
-        $news = latestNews::where('category', $category)->findOrFail($id);
+        $news = latestNews::where('category', $category);
         return response()->json($news);
     }
 
