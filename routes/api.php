@@ -45,25 +45,17 @@ Route::apiResource('infaks', InfakController::class);
 Route::apiResource('zakats', ZakatController::class);;
 Route::apiResource('wakafs', WakafController::class);
 
-// Routing with category and ID
-Route::prefix('latestNews/{category}')->group(function () {
-    Route::get('', [LatestNewsController::class, 'show']);
-    Route::post('{id}', [LatestNewsController::class, 'store']);
-    Route::put('{id}', [LatestNewsController::class, 'update']);
-    Route::delete('{id}', [LatestNewsController::class, 'destroy']);
-});
-
 Route::prefix('latestNews')->group(function () {
     Route::get('{category}', [LatestNewsController::class, 'index']); // Menampilkan berita berdasarkan kategori
     Route::post('{category}/{id}', [LatestNewsController::class, 'store']);
     Route::put('{category}/{id}', [LatestNewsController::class, 'update']); // Memperbarui berita berdasarkan ID
     Route::delete('{category}/{id}', [LatestNewsController::class, 'destroy']); // Menghapus berita berdasarkan ID
+    Route::get('list/{category}/{id}', [LatestNewsController::class, 'getByCategoryAndEntityId']);
 });
 
 
     // Get all priority campaigns
 Route::get('/campaign/get-priority', [CampaignController::class, 'getPriorityCampaigns']);
-Route::get('latestNews/list/{category}/{id}', [LatestNewsController::class, 'getByCategoryAndEntityId']);
 
 
 Route::post('/billing/create/{categoryType}/{id}', [BillingController::class, 'createBilling']);
