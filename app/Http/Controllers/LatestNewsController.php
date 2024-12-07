@@ -11,7 +11,7 @@ class LatestNewsController extends Controller
 
     public function index($category)
     {
-        $news = latestNews::where('category', $category);
+        $news = latestNews::where('category', $category)->get();
         return response()->json($news);
     }
 
