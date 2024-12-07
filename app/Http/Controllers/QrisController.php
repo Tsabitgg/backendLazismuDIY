@@ -195,7 +195,7 @@ class QrisController extends Controller
                     'message' => $billing->message,
                     'transaction_date' => now(),
                     'channel' => 'ONLINE',
-                    'va_number' => $billing->$vano,
+                    'va_number' => $vano,
                     'method' => 'QRIS',
                     'transaction_qr_id' => $transactionQrId,
                     'created_time' => $billing->created_time,
