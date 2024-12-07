@@ -69,6 +69,7 @@ class CampaignController extends Controller
             $validatedData['end_date'] = $validatedData['end_date'] ?? null;
             $validatedData['active'] = 1;
             $validatedData['approved'] = 1;
+            $validatedData['priority'] = 0;
             $validatedData['distribution'] = 0;
             $validatedData['current_mount'] = 0;
 
@@ -131,12 +132,43 @@ class CampaignController extends Controller
         }
     }
     
-
-    
-
     public function destroy($id)
     {
         Campaign::destroy($id);
         return response()->json(null, 204);
+    }
+
+    // Set priority to true
+    public function setPriorityTrue($id)
+    {
+        $campaign = Campaign::findOrFail($id);
+        $campaign->priority = true;
+        $campaign->save();
+
+        return response()->json([
+            'message' => 'Campaign set priority successfully!',
+            'campaign' => $campaign,
+        ]);
+    }
+
+    // Set priority to false
+    public function setPriorityFalse($id)
+    {
+        $campaign = Campaign::findOrFail($id);
+        $campaign->priority = false;
+        $campaign->save();
+
+        return response()->json([
+            'message' => 'Campaign unset priority successfully!',
+            'campaign' => $campaign,
+        ]);
+    }
+
+    // Get all campaigns priority
+    public function getPriorityCampaigns()
+    {
+        $campaigns = Campaign::where('priority', true)->get();
+
+        return response()->json($campaigns, 200);
     }
 }

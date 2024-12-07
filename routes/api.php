@@ -30,7 +30,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::apiResource('campaigns', CampaignController::class);
-// Route::put('/campaigns/{id}', [CampaignController::class, 'update']);
+
+Route::prefix('campaigns')->group(function () {
+    // Set priority to true
+    Route::put('set-priority/{id}', [CampaignController::class, 'setPriorityTrue']);
+    
+    // Set priority to false
+    Route::put('unset-priority/{id}', [CampaignController::class, 'setPriorityFalse']);
+    
+    // Get all priority campaigns
+    Route::get('get-priority', [CampaignController::class, 'getPriorityCampaigns']);
+});
 
 Route::apiResource('campaign-categories', CampaignCategoryController::class);
 Route::apiResource('infaks', InfakController::class);

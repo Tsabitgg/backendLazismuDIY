@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('campaigns', function (Blueprint $table) {
-            $table->id(); // Primary key 'id'
+            $table->id();
             $table->foreignId('campaign_category_id')->constrained('campaign_categories'); // Foreign key untuk campaign_categories
             $table->string('campaign_name');
             $table->string('campaign_code')->unique();
@@ -29,6 +29,7 @@ return new class extends Migration
             $table->date('end_date');
             $table->boolean('active');
             $table->boolean('approved');
+            $table->boolean('priority');
             $table->timestamps();
         });        
     }
