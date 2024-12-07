@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\JWT;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -95,7 +96,7 @@ class AuthController extends Controller
         }
 
         // Membuat pengguna baru (Admin)
-        $user = User::create([
+        $user = Admin::create([
             'name' => $request->name,
             'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password), // Password dari input
@@ -122,7 +123,7 @@ class AuthController extends Controller
         }
 
         // Cek kredensial
-        $user = User::where('name', $request->name)->first();
+        $user = Admin::where('name', $request->name)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
