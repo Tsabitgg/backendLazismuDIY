@@ -46,7 +46,7 @@ Route::apiResource('zakats', ZakatController::class);;
 Route::apiResource('wakafs', WakafController::class);
 
 Route::prefix('latestNews')->group(function () {
-    Route::get('{category}', [LatestNewsController::class, 'index']); // Menampilkan berita berdasarkan kategori
+    Route::get('list/{category}', [LatestNewsController::class, 'index']); // Menampilkan berita berdasarkan kategori
     Route::post('{category}/{id}', [LatestNewsController::class, 'store']);
     Route::put('{category}/{id}', [LatestNewsController::class, 'update']); // Memperbarui berita berdasarkan ID
     Route::delete('{category}/{id}', [LatestNewsController::class, 'destroy']); // Menghapus berita berdasarkan ID
