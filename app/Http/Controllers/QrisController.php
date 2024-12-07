@@ -166,7 +166,7 @@ class QrisController extends Controller
         $data = $decoded->data;
 
         if ($responseCode === '00') {
-            $vano = $data->vano;
+            $vano = $data->vano1;
             $amount = $data->amount;
             $accountNo = $data->accountNo;
             $transactionQrId = $data->transactionQrId;
@@ -195,7 +195,7 @@ class QrisController extends Controller
                     'message' => $billing->message,
                     'transaction_date' => now(),
                     'channel' => 'ONLINE',
-                    'va_number' => $billing->vano,
+                    'va_number' => $billing->$vano,
                     'method' => 'QRIS',
                     'transaction_qr_id' => $transactionQrId,
                     'created_time' => $billing->created_time,
