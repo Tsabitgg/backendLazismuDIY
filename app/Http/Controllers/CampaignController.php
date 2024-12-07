@@ -168,8 +168,11 @@ class CampaignController extends Controller
     // Get all campaigns priority
     public function getPriorityCampaigns()
     {
-        $campaigns = DB::table('campaigns')->where('priority', true)->get();
-    
+        $campaigns = Campaign::with('category')
+            ->where('priority', true)
+            ->get();
+
         return response()->json($campaigns, 200);
-    }    
+    }
+
 }
