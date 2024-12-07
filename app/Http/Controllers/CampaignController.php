@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Campaign;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CampaignController extends Controller
 {
@@ -167,8 +168,8 @@ class CampaignController extends Controller
     // Get all campaigns priority
     public function getPriorityCampaigns()
     {
-        $campaigns = Campaign::where('priority', true)->get();
-
+        $campaigns = DB::table('campaigns')->where('priority', true)->get();
+    
         return response()->json($campaigns, 200);
-    }
+    }    
 }
