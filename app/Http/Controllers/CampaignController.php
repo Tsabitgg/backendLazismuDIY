@@ -71,6 +71,7 @@ class CampaignController extends Controller
             $validatedData['active'] = 1;
             $validatedData['approved'] = 1;
             $validatedData['priority'] = 0;
+            $validatedData['recomendation'] = 0;
             $validatedData['distribution'] = 0;
             $validatedData['current_mount'] = 0;
 
@@ -181,5 +182,41 @@ class CampaignController extends Controller
 
         return response()->json($campaigns, 200);
     }
+
+        // Set recomendation to true
+        public function setRecomendationTrue($id)
+        {
+            $campaign = Campaign::findOrFail($id);
+            $campaign->recomendation = true;
+            $campaign->save();
+    
+            return response()->json([
+                'message' => 'Campaign set recomendation successfully!',
+                'campaign' => $campaign,
+            ]);
+        }
+    
+        // Set recomendation to false
+        public function setRecomendationFalse($id)
+        {
+            $campaign = Campaign::findOrFail($id);
+            $campaign->recomendation = false;
+            $campaign->save();
+    
+            return response()->json([
+                'message' => 'Campaign unset recomendation successfully!',
+                'campaign' => $campaign,
+            ]);
+        }
+    
+        // Get all campaigns recomendation
+        public function getRecomendationCampaigns()
+        {
+            $campaigns = Campaign::with('category')
+                ->where('recomendation', true)
+                ->get();
+    
+            return response()->json($campaigns, 200);
+        }
 
 }

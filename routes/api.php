@@ -31,15 +31,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::apiResource('campaigns', CampaignController::class);
 
-Route::prefix('campaigns')->group(function () {
-    // Set priority to true
-    Route::put('set-priority/{id}', [CampaignController::class, 'setPriorityTrue']);
-    
-    // Set priority to false
-    Route::put('unset-priority/{id}', [CampaignController::class, 'setPriorityFalse']);
-    
-});
-
 Route::apiResource('campaign-categories', CampaignCategoryController::class);
 Route::apiResource('infaks', InfakController::class);
 Route::apiResource('zakats', ZakatController::class);;
@@ -53,9 +44,15 @@ Route::prefix('latestNews')->group(function () {
     Route::get('list/{category}/{id}', [LatestNewsController::class, 'getByCategoryAndEntityId']);
 });
 
-
-    // Get all priority campaigns
+// priority campaigns
 Route::get('/campaign/get-priority', [CampaignController::class, 'getPriorityCampaigns']);
+Route::put('/campaign/set-priority/{id}', [CampaignController::class, 'setPriorityTrue']);
+Route::put('/campaign/unset-priority/{id}', [CampaignController::class, 'setPriorityFalse']);
+
+// recomendation campaigns
+Route::get('/campaign/get-recomendation', [CampaignController::class, 'getRecomendationCampaigns']);
+Route::put('/campaign/set-recomendation/{id}', [CampaignController::class, 'setRecomendationTrue']);
+Route::put('/campaign/unset-recomendation/{id}', [CampaignController::class, 'setRecomendationFalse']);
 
 
 Route::post('/billing/create/{categoryType}/{id}', [BillingController::class, 'createBilling']);

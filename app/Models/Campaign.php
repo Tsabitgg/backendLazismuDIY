@@ -23,7 +23,8 @@ class Campaign extends Model
         'start_date',
         'active',
         'approved',
-        'priority'
+        'priority',
+        'recomendation'
     ];
 
     public function category()

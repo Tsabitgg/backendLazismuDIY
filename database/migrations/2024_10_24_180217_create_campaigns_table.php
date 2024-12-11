@@ -30,6 +30,7 @@ return new class extends Migration
             $table->boolean('active');
             $table->boolean('approved');
             $table->boolean('priority');
+            $table->boolean('recomendation');
             $table->timestamps();
         });        
     }
