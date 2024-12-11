@@ -65,14 +65,15 @@ class LatestNewsController extends Controller
         return response()->json($news);
     }
 
-    // Delete news by ID and category
-    public function destroy($category, $id)
+    // Delete news by ID
+    public function destroy($id)
     {
-        $news = latestNews::where('category', $category)->findOrFail($id);
-        $news->delete();
+        $news = latestNews::findOrFail($id); // Temukan data berdasarkan ID
+        $news->delete(); // Hapus data
 
-        return response()->json(['message' => 'Latest news deleted successfully.']);
+        return response()->json(['message' => 'Latest news deleted successfully.']); // Response JSON
     }
+
 
     public function getByCategoryAndEntityId($category, $id)
     {

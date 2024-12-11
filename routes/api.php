@@ -49,7 +49,7 @@ Route::prefix('latestNews')->group(function () {
     Route::get('list/{category}', [LatestNewsController::class, 'index']); // Menampilkan berita berdasarkan kategori
     Route::post('{category}/{id}', [LatestNewsController::class, 'store']);
     Route::put('{category}/{id}', [LatestNewsController::class, 'update']); // Memperbarui berita berdasarkan ID
-    Route::delete('{category}/{id}', [LatestNewsController::class, 'destroy']); // Menghapus berita berdasarkan ID
+    Route::delete('delete/{id}', [LatestNewsController::class, 'destroy']); // Menghapus berita berdasarkan ID
     Route::get('list/{category}/{id}', [LatestNewsController::class, 'getByCategoryAndEntityId']);
 });
 
