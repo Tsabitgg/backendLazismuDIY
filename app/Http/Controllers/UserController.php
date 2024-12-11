@@ -18,7 +18,7 @@ public function index(Request $request)
 
     // Jika ada search, filter berdasarkan username atau phone_number
     if ($search) {
-        $users = User::where('username', 'like', "%{$search}%")
+        $users = User::where('name', 'like', "%{$search}%")
                     ->orWhere('phone_number', 'like', "%{$search}%")
                     ->paginate($perPage);
     } else {

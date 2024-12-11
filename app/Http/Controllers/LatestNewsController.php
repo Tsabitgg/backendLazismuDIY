@@ -9,11 +9,23 @@ use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 class LatestNewsController extends Controller
 {
 
-    public function index($category)
+    public function index(Request $request, $category)
     {
-        $news = latestNews::where('category', $category)->get();
+        // Ambil parameter pencarian dari query string
+        $search = $request->query('search');
+    
+        // Query untuk berita terbaru dengan pencarian berdasarkan campaign_name
+        $news = latestNews::where('category', $category)
+            ->whereHas('campaign', function ($query) use ($search) {
+                if ($search) {
+                    $query->where('campaign_name', 'LIKE', "%$search%");
+                }
+            })
+            ->get();
+    
         return response()->json($news);
     }
+    
 
     // Create news (only category and ID)
     public function store(Request $request, $category, $id)
