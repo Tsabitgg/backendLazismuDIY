@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Campaign;
+use App\Models\Infak;
 use App\Models\latestNews;
+use App\Models\Wakaf;
+use App\Models\Zakat;
 use Illuminate\Http\Request;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
@@ -35,22 +39,55 @@ class LatestNewsController extends Controller
             'image' => 'required|image|mimes:jpg,jpeg,png',
             'description' => 'required|string',
         ]);
-
-        // Upload image to Cloudinary
+    
         $imagePath = Cloudinary::upload($request->file('image')->getRealPath(), [
             'folder' => 'latest_news',
         ])->getSecurePath();
 
-        // Create a new news entry
+        $model = null;
+        $foreignKey = null;
+    
+        switch ($category) {
+            case 'zakat':
+                $model = Zakat::find($id);
+                $foreignKey = 'zakat_id';
+                break;
+    
+            case 'infak':
+                $model = Infak::find($id);
+                $foreignKey = 'infak_id';
+                break;
+    
+            case 'campaign':
+                $model = Campaign::find($id);
+                $foreignKey = 'campaign_id';
+                break;
+    
+            // Optionally, handle other categories (e.g., 'wakaf')
+            case 'wakaf':
+                $model = Wakaf::find($id);
+                $foreignKey = 'wakaf_id';
+                break;
+            
+            default:
+                return response()->json(['error' => 'Invalid category'], 400);
+        }
+    
+        if (!$model) {
+            return response()->json(['error' => 'Resource not found'], 404);
+        }
+    
+        // Create a new news entry with appropriate foreign key
         $news = latestNews::create([
             'latest_news_date' => $request->latest_news_date,
             'image' => $imagePath,
             'description' => $request->description,
             'category' => $category,
+            $foreignKey => $model->id, // Dynamically assign the correct foreign key
         ]);
-
+    
         return response()->json($news, 201);
-    }
+    }    
 
     // Update news
     public function update(Request $request, $category, $id)
