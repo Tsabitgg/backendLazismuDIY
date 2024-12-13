@@ -15,6 +15,10 @@ class latestNews extends Model
         'image',
         'description',
         'category',
+        'campaign_id',  // Add this if not already present
+        'zakat_id',      // Add this if not already present
+        'infak_id',      // Add this if not already present
+        'wakaf_id',      // Add this if not already present
     ];
     
 
