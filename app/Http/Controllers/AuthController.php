@@ -61,10 +61,6 @@ class AuthController extends Controller
         // Cek kredensial
         $user = User::where('phone_number', $request->phone_number)->first();
 
-        if (!$user) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
         // Membuat payload untuk token
         $payload = [
             'sub' => $user->id, // Subject, biasanya ID pengguna
