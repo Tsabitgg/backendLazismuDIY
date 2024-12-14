@@ -263,5 +263,23 @@ class CampaignController extends Controller
         return response()->json($campaigns, 200);
     }
 
+    public function getNonActiveCampaigns(Request $request)
+    {
+        $search = $request->input('search');
+        $categoryId = $request->input('category_id');
+
+        $campaigns = Campaign::with('category')
+            ->where('active', false)
+            ->when($search, function ($query, $search) {
+                $query->where('campaign_name', 'like', '%' . $search . '%');
+            })
+            ->when($categoryId, function ($query, $categoryId) {
+                $query->where('campaign_category_id', $categoryId);
+            })
+            ->paginate(20);
+
+        return response()->json($campaigns, 200);
+    }
+
 
 }

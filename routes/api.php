@@ -56,6 +56,7 @@ Route::put('/campaign/unset-recomendation/{id}', [CampaignController::class, 'se
 
 // active campaign
 Route::get('/campaign/get-active', [CampaignController::class, 'getActiveCampaigns']);
+Route::get('/campaign/get-nonactive', [CampaignController::class, 'getNonActiveCampaigns']);
 Route::put('/campaign/set-active/{id}', [CampaignController::class, 'setActiveTrue']);
 Route::put('/campaign/unset-active/{id}', [CampaignController::class, 'setActiveFalse']);
 
