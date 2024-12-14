@@ -80,6 +80,7 @@ Route::get('users', [UserController::class, 'index']);
 Route::get('users/{id}', [UserController::class, 'show']);
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::get('/get-me', [AuthController::class, 'getMe']);
 
 Route::post('register-admin', [AuthController::class, 'registerAdmin']);
 Route::post('login-admin', [AuthController::class, 'loginAdmin']);
