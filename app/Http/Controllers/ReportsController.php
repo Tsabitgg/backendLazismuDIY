@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Reports;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ReportsController extends Controller
 {
@@ -13,6 +14,9 @@ class ReportsController extends Controller
             'title' => 'required|string|max:255',
             'file' => 'required|mimes:pdf|max:2048', // Maksimal 2MB
         ]);
+
+        Log::info('Request received: ', $request->all());
+        Log::info('Uploaded file: ', ['file' => $request->file('file')]);
 
         // Simpan file PDF ke storage
         $filePath = $request->file('file')->store('reports', 'public');
