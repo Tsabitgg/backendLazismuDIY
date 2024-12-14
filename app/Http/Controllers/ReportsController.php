@@ -15,9 +15,6 @@ class ReportsController extends Controller
             'file' => 'required|mimes:pdf|max:2048', // Maksimal 2MB
         ]);
 
-        Log::info('Request received: ', $request->all());
-        Log::info('Uploaded file: ', ['file' => $request->file('file')]);
-
         // Simpan file PDF ke storage
         $filePath = $request->file('file')->store('reports', 'public');
 
