@@ -11,6 +11,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WakafController;
 use App\Http\Controllers\ZakatController;
 use App\Http\Controllers\LatestNewsController;
+use App\Http\Controllers\ReportsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -85,3 +86,6 @@ Route::get('/get-me', [AuthController::class, 'getMe']);
 
 Route::post('register-admin', [AuthController::class, 'registerAdmin']);
 Route::post('login-admin', [AuthController::class, 'loginAdmin']);
+
+Route::post('/upload-report', [ReportsController::class, 'upload']); // Upload PDF
+Route::get('/get-report', [ReportsController::class, 'index']);   // Get PDFs with filters
