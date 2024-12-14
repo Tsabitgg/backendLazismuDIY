@@ -166,7 +166,7 @@ class AuthController extends Controller
         $token = substr($authHeader, 7);
     
         try {
-            $key = (string) env('JWT_SECRET', 'default-secret-key');
+            $key = env('JWT_SECRET', 'default-secret-key');
             $decoded = JWT::decode($token, new Key($key, 'HS256'));
     
             $user = User::find($decoded->sub);
