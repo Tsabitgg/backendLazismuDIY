@@ -12,7 +12,6 @@ use Laravel\Prompts\Key;
 
 class AuthController extends Controller
 {
-    // Register Method untuk Pengguna Biasa
     public function register(Request $request)
     {
         // Validasi input
@@ -20,24 +19,32 @@ class AuthController extends Controller
             'name' => 'required|string|unique:users,name',
             'phone_number' => 'required|string|unique:users,phone_number',
         ]);
-
+    
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            // Cek apakah error berasal dari 'name' atau 'phone_number'
+            $errors = $validator->errors();
+            if ($errors->has('name') || $errors->has('phone_number')) {
+                return response()->json(['message' => 'Nama atau Nomor Hp sudah digunakan'], 422);
+            }
+    
+            // Jika ada error lain, kirim respons default
+            return response()->json(['errors' => $errors], 422);
         }
-
+    
         // Membuat pengguna baru dengan password default 'password123'
         $user = User::create([
             'name' => $request->name,
             'phone_number' => $request->phone_number,
             'password' => Hash::make('password123'), // Password default
         ]);
-
+    
         // Mengembalikan data pengguna tanpa token
         return response()->json([
             'message' => 'User registered successfully',
             'user' => $user,
         ]);
     }
+    
 
     // Login Method untuk Pengguna Biasa
     public function login(Request $request)
@@ -158,30 +165,35 @@ class AuthController extends Controller
     //Get Me Donatur
     public function getMe(Request $request)
     {
+        // Ambil token dari Authorization header
         $authHeader = $request->header('Authorization');
         if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
-            return response()->json(['message' => 'Authorization token not provided'], 401);
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
     
-        $token = substr($authHeader, 7);
+        // Ekstrak token dari header
+        $token = str_replace('Bearer ', '', $authHeader);
     
         try {
-            $key = env('JWT_SECRET', 'default-secret-key');
-            $decoded = JWT::decode($token, new Key($key, 'HS256'));
+            // Decode token menggunakan helper JWT
+            $key = env('JWT_SECRET', 'your-secret-key');
+            $decoded = JWT::decode($token, $key);
     
+            // Cari user berdasarkan ID dari payload token
             $user = User::find($decoded->sub);
-    
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
             }
     
+            // Kembalikan data pengguna
             return response()->json([
                 'id' => $user->id,
                 'name' => $user->name,
                 'phone_number' => $user->phone_number,
             ]);
+    
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Invalid or expired token', 'error' => $e->getMessage()], 401);
+            return response()->json(['message' => 'Invalid token'], 401);
         }
     }
 }
