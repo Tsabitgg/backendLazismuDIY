@@ -61,6 +61,10 @@ class AuthController extends Controller
         // Cek kredensial
         $user = User::where('phone_number', $request->phone_number)->first();
 
+        if (!$user) {
+            return response()->json(['message' => 'Nomor Hp tidak ditemukan'], 401);
+        }
+
         // Membuat payload untuk token
         $payload = [
             'sub' => $user->id, // Subject, biasanya ID pengguna
