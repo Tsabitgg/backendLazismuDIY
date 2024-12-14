@@ -158,35 +158,29 @@ class AuthController extends Controller
     //Get Me Donatur
     public function getMe(Request $request)
     {
-        // Ambil token dari header Authorization
         $authHeader = $request->header('Authorization');
         if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
             return response()->json(['message' => 'Authorization token not provided'], 401);
         }
     
-        // Ekstrak token dari header
         $token = substr($authHeader, 7);
     
         try {
-            // Verifikasi token menggunakan key yang sama seperti saat login
-            $key = env('JWT_SECRET', 'your-secret-key');
+            $key = (string) env('JWT_SECRET', 'default-secret-key');
             $decoded = JWT::decode($token, new Key($key, 'HS256'));
     
-            // Cari pengguna berdasarkan ID dari payload
             $user = User::find($decoded->sub);
     
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
             }
     
-            // Return data pengguna
             return response()->json([
                 'id' => $user->id,
                 'name' => $user->name,
                 'phone_number' => $user->phone_number,
             ]);
         } catch (\Exception $e) {
-            // Token tidak valid atau expired
             return response()->json(['message' => 'Invalid or expired token', 'error' => $e->getMessage()], 401);
         }
     }
