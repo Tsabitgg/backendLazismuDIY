@@ -183,40 +183,85 @@ class CampaignController extends Controller
         return response()->json($campaigns, 200);
     }
 
-        // Set recomendation to true
-        public function setRecomendationTrue($id)
-        {
-            $campaign = Campaign::findOrFail($id);
-            $campaign->recomendation = true;
-            $campaign->save();
+    // Set recomendation to true
+    public function setRecomendationTrue($id)
+    {
+        $campaign = Campaign::findOrFail($id);
+        $campaign->recomendation = true;
+        $campaign->save();
     
-            return response()->json([
-                'message' => 'Campaign set recomendation successfully!',
-                'campaign' => $campaign,
-            ]);
-        }
+        return response()->json([
+            'message' => 'Campaign set recomendation successfully!',
+            'campaign' => $campaign,
+        ]);
+    }
     
-        // Set recomendation to false
-        public function setRecomendationFalse($id)
-        {
-            $campaign = Campaign::findOrFail($id);
-            $campaign->recomendation = false;
-            $campaign->save();
+    // Set recomendation to false
+    public function setRecomendationFalse($id)
+    {
+        $campaign = Campaign::findOrFail($id);
+        $campaign->recomendation = false;
+        $campaign->save();
     
-            return response()->json([
-                'message' => 'Campaign unset recomendation successfully!',
-                'campaign' => $campaign,
-            ]);
-        }
+        return response()->json([
+            'message' => 'Campaign unset recomendation successfully!',
+            'campaign' => $campaign,
+        ]);
+    }
     
-        // Get all campaigns recomendation
-        public function getRecomendationCampaigns()
-        {
-            $campaigns = Campaign::with('category')
-                ->where('recomendation', true)
-                ->get();
+    // Get all campaigns recomendation
+    public function getRecomendationCampaigns()
+    {
+        $campaigns = Campaign::with('category')
+            ->where('recomendation', true)
+            ->get();
     
-            return response()->json($campaigns, 200);
-        }
+        return response()->json($campaigns, 200);
+    }
+
+    // Set active to true
+    public function setActiveTrue($id)
+    {
+        $campaign = Campaign::findOrFail($id);
+        $campaign->active = true;
+        $campaign->save();
+    
+        return response()->json([
+            'message' => 'Campaign set active successfully!',
+            'campaign' => $campaign,
+        ]);
+    }
+    
+    // Set active to false
+    public function setActiveFalse($id)
+    {
+        $campaign = Campaign::findOrFail($id);
+        $campaign->active = false;
+        $campaign->save();
+    
+        return response()->json([
+            'message' => 'Campaign unset active successfully!',
+            'campaign' => $campaign,
+        ]);
+    }
+
+    public function getActiveCampaigns(Request $request)
+    {
+        $search = $request->input('search');
+        $categoryId = $request->input('category_id');
+
+        $campaigns = Campaign::with('category')
+            ->where('active', true)
+            ->when($search, function ($query, $search) {
+                $query->where('campaign_name', 'like', '%' . $search . '%');
+            })
+            ->when($categoryId, function ($query, $categoryId) {
+                $query->where('campaign_category_id', $categoryId);
+            })
+            ->paginate(20);
+
+        return response()->json($campaigns, 200);
+    }
+
 
 }

@@ -54,6 +54,11 @@ Route::get('/campaign/get-recomendation', [CampaignController::class, 'getRecome
 Route::put('/campaign/set-recomendation/{id}', [CampaignController::class, 'setRecomendationTrue']);
 Route::put('/campaign/unset-recomendation/{id}', [CampaignController::class, 'setRecomendationFalse']);
 
+// active campaign
+Route::get('/campaign/get-active', [CampaignController::class, 'getActiveCampaigns']);
+Route::put('/campaign/set-active/{id}', [CampaignController::class, 'setActiveTrue']);
+Route::put('/campaign/unset-active/{id}', [CampaignController::class, 'setActiveFalse']);
+
 
 Route::post('/billing/create/{categoryType}/{id}', [BillingController::class, 'createBilling']);
 Route::get('/generate-qris', [QrisController::class, 'generate']);
