@@ -94,4 +94,4 @@ Route::get('/get-report', [ReportsController::class, 'index']);
 Route::get('/transactions-donatur', [TransactionController::class, 'getUserTransactions']);
 Route::get('/transactions-donatur/summary', [TransactionController::class, 'getTransactionSummary']);
 
-Route::get('/total_for_ict', [TransactionController::class, 'totalForIct']);
+Route::get('/total-for-ict', [TransactionController::class, 'totalForIct']);
