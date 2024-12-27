@@ -89,3 +89,6 @@ Route::post('login-admin', [AuthController::class, 'loginAdmin']);
 
 Route::post('/upload-report', [ReportsController::class, 'upload']); // Upload PDF
 Route::get('/get-report', [ReportsController::class, 'index']);   // Get PDFs with filters
+
+Route::get('/transactions-donatur', [TransactionController::class, 'getUserTransactions']);
+Route::get('/transactions-donatur/summary', [TransactionController::class, 'getTransactionSummary']);
