@@ -17,6 +17,11 @@ class Billing extends Model
         'zakat_id', 'infak_id', 'campaign_id', 'wakaf_id'
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function campaign()
     {
         return $this->belongsTo(Campaign::class);

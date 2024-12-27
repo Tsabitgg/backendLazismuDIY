@@ -9,6 +9,11 @@ class transaction extends Model
 {
     use HasFactory;
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // Relasi ke campaign
     public function campaign()
     {
