@@ -70,6 +70,7 @@ Route::post('/push-notification', [QrisController::class, 'pushNotification']);
 
 
 Route::get('transactions', [TransactionController::class, 'index']);
+Route::get('billings', [BillingController::class, 'index']);
 
 Route::get('transactions/category/{category}', [TransactionController::class, 'getTransactionsByCategory']);
 

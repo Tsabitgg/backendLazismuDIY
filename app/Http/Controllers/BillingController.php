@@ -16,11 +16,31 @@ class BillingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        // Mendapatkan nilai filter dari parameter query
+        $success = $request->query('success');
+        $category = $request->query('category');
+    
+        // Query untuk mendapatkan data billing
+        $query = Billing::with(['campaign', 'zakat', 'infak', 'wakaf']);
+    
+        // Menambahkan filter success jika parameter query diberikan
+        if (!is_null($success)) {
+            $query->where('success', filter_var($success, FILTER_VALIDATE_BOOLEAN));
+        }
+    
+        // Menambahkan filter kategori jika parameter query diberikan
+        if (!is_null($category)) {
+            $query->where('category', $category);
+        }
+    
+        // Mendapatkan data dengan paginasi
+        $billings = $query->paginate(20);
+    
+        return response()->json($billings);
     }
-
+    
     /**
      * Store a newly created resource in storage.
      */
