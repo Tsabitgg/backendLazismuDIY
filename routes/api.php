@@ -88,8 +88,10 @@ Route::get('/get-me', [AuthController::class, 'getMe']);
 Route::post('register-admin', [AuthController::class, 'registerAdmin']);
 Route::post('login-admin', [AuthController::class, 'loginAdmin']);
 
-Route::post('/upload-report', [ReportsController::class, 'upload']); // Upload PDF
-Route::get('/get-report', [ReportsController::class, 'index']);   // Get PDFs with filters
+Route::post('/upload-report', [ReportsController::class, 'upload']);
+Route::get('/get-report', [ReportsController::class, 'index']);
 
 Route::get('/transactions-donatur', [TransactionController::class, 'getUserTransactions']);
 Route::get('/transactions-donatur/summary', [TransactionController::class, 'getTransactionSummary']);
+
+Route::get('/total_for_ict', [TransactionController::class, 'totalForIct']);

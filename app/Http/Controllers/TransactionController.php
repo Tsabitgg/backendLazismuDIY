@@ -111,4 +111,13 @@ class TransactionController extends Controller
         ], 200);
     }
 
+    public function totalForIct()
+    {
+        $total = Transaction::sum('for_ict');
+
+        return response()->json([
+            'total_for_ict' => $total
+        ]);
+    }
+
 }
