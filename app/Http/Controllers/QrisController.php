@@ -186,12 +186,15 @@ class QrisController extends Controller
                     $invoiceId = 'INV-' . now()->format('ymd') . strtoupper(Str::random(5));
                 } while (DB::table('transactions')->where('invoice_id', $invoiceId)->exists());
 
+                $for_ict = ($amount < 100000) ? $amount * 0.025 : 3000;
+
                 DB::table('transactions')->insert([
                     'invoice_id' => $invoiceId,
                     'donatur' => $billing->username,
                     'phone_number' => $billing->phone_number,
                     'email' => null,
                     'transaction_amount' => $amount,
+                    'for_ict' => $for_ict,
                     'message' => $billing->message,
                     'transaction_date' => now(),
                     'channel' => 'ONLINE',
